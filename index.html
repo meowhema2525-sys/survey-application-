@@ -1,0 +1,343 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Survey Application</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef4ff;
+            color: #333;
+        }
+
+        header {
+            background: #2457c5;
+            color: white;
+            text-align: center;
+            padding: 30px 15px;
+        }
+
+        header h1 {
+            margin-bottom: 10px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 35px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #ccd5e5;
+        }
+
+        .container h2 {
+            color: #2457c5;
+            margin-bottom: 10px;
+        }
+
+        #questions {
+            margin-top: 25px;
+        }
+
+        .question {
+            background: #f5f8ff;
+            border-left: 4px solid #2457c5;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .question h3 {
+            margin-bottom: 12px;
+            font-size: 17px;
+        }
+
+        .option {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        .option input {
+            margin-right: 8px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #2457c5;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #163d91;
+        }
+
+        button:disabled {
+            background: #888;
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e5f8eb;
+            color: #176534;
+            border-radius: 8px;
+        }
+
+        #result h2,
+        #result h3 {
+            margin-bottom: 12px;
+        }
+
+        #result p {
+            margin: 10px 0;
+            overflow-wrap: anywhere;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #555;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px 12px;
+                padding: 18px;
+            }
+
+            header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Online Survey Application</h1>
+        <p>Your Opinion Matters!</p>
+    </header>
+
+    <div class="container">
+        <h2>Customer Opinion Survey</h2>
+        <p>Answer any 5 randomly selected questions.</p>
+
+        <form id="surveyForm">
+            <div id="questions"></div>
+            <button type="submit" id="submitBtn">Submit Survey</button>
+        </form>
+
+        <div id="result" hidden></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Online Survey Application</p>
+    </footer>
+
+    <script>
+        const questionBank = [
+            {
+                question: "How satisfied are you with our services?",
+                options: ["Very Satisfied", "Satisfied", "Neutral", "Dissatisfied"]
+            },
+            {
+                question: "How often do you use online services?",
+                options: ["Daily", "Weekly", "Monthly", "Rarely"]
+            },
+            {
+                question: "Which device do you use most?",
+                options: ["Mobile", "Laptop", "Desktop", "Tablet"]
+            },
+            {
+                question: "How easy is our website to use?",
+                options: ["Very Easy", "Easy", "Average", "Difficult"]
+            },
+            {
+                question: "Would you recommend our services?",
+                options: ["Definitely", "Maybe", "Not Sure", "No"]
+            },
+            {
+                question: "Which feature is most important to you?",
+                options: ["Speed", "Security", "Design", "Features"]
+            },
+            {
+                question: "How do you prefer to receive updates?",
+                options: ["Email", "SMS", "Website", "Social Media"]
+            },
+            {
+                question: "How frequently do you shop online?",
+                options: ["Daily", "Weekly", "Monthly", "Never"]
+            },
+            {
+                question: "What is your main purpose for using the internet?",
+                options: ["Education", "Entertainment", "Work", "Communication"]
+            },
+            {
+                question: "How important is data privacy to you?",
+                options: ["Very Important", "Important", "Neutral", "Not Important"]
+            },
+            {
+                question: "How often do you use educational websites?",
+                options: ["Daily", "Weekly", "Monthly", "Never"]
+            },
+            {
+                question: "Which social media platform do you use most?",
+                options: ["Instagram", "YouTube", "Facebook", "Other"]
+            },
+            {
+                question: "Are you satisfied with online shopping?",
+                options: ["Yes", "No", "Sometimes", "Not Sure"]
+            },
+            {
+                question: "What makes a website attractive?",
+                options: ["Design", "Colors", "Content", "Speed"]
+            },
+            {
+                question: "How do you rate online learning?",
+                options: ["Excellent", "Good", "Average", "Poor"]
+            }
+        ];
+
+        let selectedQuestions = [];
+
+        function loadSurvey() {
+            const container = document.getElementById("questions");
+            const result = document.getElementById("result");
+
+            container.innerHTML = "";
+            result.replaceChildren();
+            result.hidden = true;
+
+            // Shuffle the question collection
+            const shuffled = [...questionBank];
+
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+
+                [shuffled[i], shuffled[j]] =
+                    [shuffled[j], shuffled[i]];
+            }
+
+            // Select five unique questions
+            selectedQuestions = shuffled.slice(0, 5);
+
+            selectedQuestions.forEach((item, index) => {
+                const questionDiv = document.createElement("div");
+                questionDiv.className = "question";
+
+                const heading = document.createElement("h3");
+                heading.textContent = `${index + 1}. ${item.question}`;
+                questionDiv.appendChild(heading);
+
+                item.options.forEach(option => {
+                    const label = document.createElement("label");
+                    label.className = "option";
+
+                    const radio = document.createElement("input");
+                    radio.type = "radio";
+                    radio.name = `question${index}`;
+                    radio.value = option;
+                    radio.required = true;
+
+                    label.appendChild(radio);
+                    label.appendChild(
+                        document.createTextNode(option)
+                    );
+
+                    questionDiv.appendChild(label);
+                });
+
+                container.appendChild(questionDiv);
+            });
+
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("submitBtn").textContent =
+                "Submit Survey";
+        }
+
+        document.getElementById("surveyForm").addEventListener(
+            "submit",
+            function(event) {
+                event.preventDefault();
+
+                const answers = [];
+
+                for (let i = 0; i < selectedQuestions.length; i++) {
+                    const selected = document.querySelector(
+                        `input[name="question${i}"]:checked`
+                    );
+
+                    if (!selected) {
+                        alert("Please answer all five questions.");
+                        return;
+                    }
+
+                    answers.push({
+                        question: selectedQuestions[i].question,
+                        answer: selected.value
+                    });
+                }
+
+                const result = document.getElementById("result");
+                result.replaceChildren();
+
+                const heading = document.createElement("h2");
+                heading.textContent =
+                    "Survey Submitted Successfully!";
+                result.appendChild(heading);
+
+                const message = document.createElement("p");
+                message.textContent =
+                    "Thank you for sharing your valuable opinions.";
+                result.appendChild(message);
+
+                const summary = document.createElement("h3");
+                summary.textContent = "Your Answers:";
+                result.appendChild(summary);
+
+                answers.forEach((item, index) => {
+                    const paragraph = document.createElement("p");
+
+                    paragraph.textContent =
+                        `${index + 1}. ${item.question} - ${item.answer}`;
+
+                    result.appendChild(paragraph);
+                });
+
+                const restartButton = document.createElement("button");
+                restartButton.textContent = "Take Another Survey";
+                restartButton.style.marginTop = "15px";
+                restartButton.addEventListener("click", loadSurvey);
+
+                result.appendChild(restartButton);
+
+                result.hidden = false;
+                document.getElementById("submitBtn").disabled = true;
+
+                result.scrollIntoView({ behavior: "smooth" });
+            }
+        );
+
+        // Load five random questions when the page opens
+        loadSurvey();
+    </script>
+
+</body>
+</html>
